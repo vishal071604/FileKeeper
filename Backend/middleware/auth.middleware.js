@@ -1,0 +1,26 @@
+import jwt from "jsonwebtoken";
+
+export const isLoggedIn = (req, res, next) => {
+  try {
+    // get token from cookie
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Unauthorized - No token",
+      });
+    }
+
+    // verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // attach user info to request
+    req.user = decoded;
+
+    next(); // move to next step (controller)
+  } catch (error) {
+    return res.status(401).json({
+      message: "Invalid token",
+    });
+  }
+};
