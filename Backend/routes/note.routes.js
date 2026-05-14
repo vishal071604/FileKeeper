@@ -46,11 +46,7 @@ router.put("/:id", isLoggedIn, updateNote);
 
 
 // ================= PERMANENT DELETE NOTE =================
-router.delete(
-  "/permanent/:id",
-  isLoggedIn,
-  permanentDeleteNote
-);
+router.delete("/permanent/:id",isLoggedIn,permanentDeleteNote);
 
 
 // ================= MOVE NOTE TO TRASH =================
