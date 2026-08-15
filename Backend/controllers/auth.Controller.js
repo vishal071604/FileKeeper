@@ -11,9 +11,8 @@ export const signup = async (req, res) => {
         message: "All fields are required",
       });
     }
-
     const existingUser = await User.findOne({ email });
-
+    
     if (existingUser) {
       return res.status(400).json({
         message: "User already exists",
@@ -99,11 +98,19 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
+// Clear/remove the cookie named "token" from the browser
+res.clearCookie("token", {
+  // Cookie cannot be accessed using frontend JavaScript
+  // Example: document.cookie cannot read this cookie
+  httpOnly: true,
+  // false means cookie works on HTTP also
+  // Use false for localhost development
+  // Use true in production with HTTPS
+  secure: false,
+  // Helps protect from CSRF attacks
+  // Cookie is sent only in safe/normal same-site requests
+  sameSite: "lax",
+});
 
   res.status(200).json({
     message: "Logout successful",

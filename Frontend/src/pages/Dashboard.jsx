@@ -32,7 +32,7 @@ export default function Dashboard() {
   // "trash" -> deleted notes
   const [view, setView] = useState("active");
   // store editing note id
-  const [editId, setEditId] = useState(null);
+  const [editId, setEditId] = useState(null); // null means no note is being edited
   // editing title input
   const [editTitle, setEditTitle] = useState("");
   // editing content input
@@ -49,7 +49,7 @@ export default function Dashboard() {
       // API request
       const res = await API.get(endpoint);
       // store notes in state
-      setNotes(res.data);
+      setNotes(res.data.notes);
     } catch (error) {
       // show error toast
       toast.error(error.response?.data?.message || "Failed to load notes");
@@ -137,7 +137,6 @@ export default function Dashboard() {
       const res = await API.put(`/notes/${id}`, {
         // new title
         title: editTitle,
-
         // new content
         content: editContent,
       });
@@ -233,7 +232,8 @@ export default function Dashboard() {
 
   const searchNotes = async () => {
     // if search empty -> fetch all notes
-    if (!query.trim()) return fetchNotes();
+    if (!query.trim()) 
+      return fetchNotes(); // if search query is empty, fetch all notes
 
     try {
       // send query to backend
@@ -249,12 +249,14 @@ export default function Dashboard() {
     }
   };
 
+
+  
   // ---------------- UI ----------------
 
   return (
     // full page container
     <div className="min-h-screen bg-slate-950 text-white p-6">
-      {/* top heading section */}
+      // 1 {/* top heading section */}
       <div className="flex flex-col items-center mb-10">
         {/* title */}
         <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
@@ -286,7 +288,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* main container */}
+      // 2 {/* main container */}
       <div className="max-w-5xl mx-auto">
         {/* show create form only in active page */}
         {view === "active" && (
@@ -339,7 +341,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* notes grid */}
+        // 3 {/* notes grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* if notes exist */}
           {notes.length > 0 ? (
@@ -385,9 +387,9 @@ export default function Dashboard() {
                       </button>
                     </div>
                   </>
-                ) : (
+                ) : ( // currectly edeiting note is not this note block 2
                   <>
-                    {/* note details */}
+                    // 4 {/* note details */}
                     <div>
                       {/* title and pin */}
                       <div className="flex justify-between items-start mb-2">
@@ -415,7 +417,7 @@ export default function Dashboard() {
                       </p>
                     </div>
 
-                    {/* action buttons */}
+                    // 5 {/* action buttons */}
                     <div>
                       {/* active note buttons */}
                       {view === "active" ? (

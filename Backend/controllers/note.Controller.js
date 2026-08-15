@@ -15,14 +15,15 @@ export const createNote = async (req, res) => {
       title,
       content,
       userId: req.user.id,
-      isPinned: isPinned || false,
-      isDeleted: false
+      isPinned: isPinned || false, // default to false if not provided
+      isDeleted: false,
     });
 
     res.status(201).json({
       message: "Note created successfully",
       note,
     });
+
   } catch (error) {
     res.status(500).json({
       message: "Error creating note",
@@ -97,9 +98,7 @@ export const updateNote = async (req, res) => {
       note.content = content;
       message = "Note updated successfully";
     }
-
     await note.save();
-
     res.status(200).json({
       message,
       note,
@@ -116,24 +115,19 @@ export const updateNote = async (req, res) => {
 export const deleteNote = async (req, res) => {
   try {
     const note = await Note.findById(req.params.id);
-
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
     }
-
     if (note.userId.toString() !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized" });
     }
-
     if (note.isDeleted) {
       return res.status(400).json({
         message: "This note has been deleted cannot been deleted again",
       });
     }
-
     note.isDeleted = true;
     await note.save();
-
     res.json({ message: "Note moved to trash" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -141,39 +135,32 @@ export const deleteNote = async (req, res) => {
 };
 
 // PIN / UNPIN NOTE
-
 export const togglePinNote = async (req, res) => {
   try {
     const note = await Note.findById(req.params.id);
-
     if (!note) {
       return res.status(404).json({
         message: "Note not found",
       });
     }
-
     // ownership check
     if (note.userId.toString() !== req.user.id) {
       return res.status(403).json({
         message: "Unauthorized",
       });
     }
-
     if (note.isDeleted) {
       return res.status(400).json({
         message: "Cannot pin deleted note",
       });
     }
-
     // toggle pin
     note.isPinned = !note.isPinned;
     await note.save();
-
     res.json({
       message: note.isPinned ? "Note pinned" : "Note unpinned",
       note,
     });
-
   } catch (error) {
     res.status(500).json({
       error: error.message,
@@ -184,26 +171,36 @@ export const togglePinNote = async (req, res) => {
 //serach notes
 export const searchNotes = async (req, res) => {
   try {
-    const { query } = req.query;
-
+    const { query } = req.query; // for searching in title and content
     if (!query) {
       return res.status(400).json({
         message: "Search query is required",
       });
     }
-
     const notes = await Note.find({
       userId: req.user.id,
       isDeleted: false,
       $or: [
-        { title: { $regex: query, $options: "i" } },
-        { content: { $regex: query, $options: "i" } },
+        // Search in the title field
+        {
+          title: {
+            $regex: query, // Match the search text
+            $options: "i", // Case-insensitive (React = react = REACT)
+          },
+        },
+
+        // Search in the content field
+        {
+          content: {
+            $regex: query, // Match the search text
+            $options: "i", // Case-insensitive search
+          },
+        },
       ],
     }).sort({
       isPinned: -1,
       createdAt: -1,
     });
-
     res.status(200).json(notes);
   } catch (error) {
     res.status(500).json({
@@ -217,7 +214,6 @@ export const searchNotes = async (req, res) => {
 export const restoreNote = async (req, res) => {
   try {
     const note = await Note.findById(req.params.id);
-
     if (!note) {
       return res.status(404).json({
         message: "Note not found",
@@ -231,15 +227,13 @@ export const restoreNote = async (req, res) => {
     }
 
     // IMPORTANT CHECK
-    if (!note.isDeleted) {
+    if (!note.isDeleted) { // false
       return res.status(400).json({
         message: "This note is already active",
       });
     }
-
     note.isDeleted = false;
     await note.save();
-
     res.status(200).json({
       message: "Note restored successfully",
       note,
@@ -252,7 +246,7 @@ export const restoreNote = async (req, res) => {
   }
 };
 
-
+// Permanently delete note from trash
 export const permanentDeleteNote = async (req, res) => {
   try {
     const note = await Note.findOne({
@@ -260,15 +254,12 @@ export const permanentDeleteNote = async (req, res) => {
       userId: req.user.id,
       isDeleted: true,
     });
-
     if (!note) {
       return res.status(404).json({
         message: "Note not found in trash",
       });
     }
-
     await note.deleteOne();
-
     res.json({
       message: "Note permanently deleted",
     });

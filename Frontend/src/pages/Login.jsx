@@ -1,78 +1,66 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../api/axios";
 
 export default function Login() {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleLogin = async (e) => {
+  async function handleLogin(e) {
     e.preventDefault();
 
     try {
-      const res = await API.post("/auth/login", formData);
+      const res = await API.post("/auth/login", { email, password });
+
       toast.success(res.data.message || "Login successful");
       navigate("/dashboard");
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-black px-4">
-      <form
-        onSubmit={handleLogin}
-        className="w-full max-w-md bg-slate-900/80 backdrop-blur-md border border-slate-700 p-8 rounded-3xl shadow-2xl"
-      >
-        <h1 className="text-4xl font-bold text-center mb-2 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-          Welcome Back
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
+      <div className="w-full max-w-md bg-slate-900 p-8 rounded-2xl shadow-lg">
+        <h1 className="text-3xl font-bold text-white text-center mb-6">
+          Login
         </h1>
 
-        <p className="text-center text-slate-400 mb-8">
-          Login to continue
-        </p>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Enter email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 rounded-lg bg-slate-800 text-white outline-none border border-slate-700"
+          />
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter email"
-          value={formData.email}
-          onChange={handleChange}
-          className="w-full mb-4 p-4 rounded-xl bg-slate-800 text-white border border-slate-700 outline-none focus:border-blue-500"
-        />
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 rounded-lg bg-slate-800 text-white outline-none border border-slate-700"
+          />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Enter password"
-          value={formData.password}
-          onChange={handleChange}
-          className="w-full mb-5 p-4 rounded-xl bg-slate-800 text-white border border-slate-700 outline-none focus:border-blue-500"
-        />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold"
+          >
+            Login
+          </button>
+        </form>
 
-        <button
-          type="submit"
-          className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white p-4 rounded-xl font-semibold text-lg"
-        >
-          Login
-        </button>
-
-        <p className="text-center text-slate-400 mt-6">
+        <p className="text-slate-400 text-center mt-5">
           New user?{" "}
-          <Link to="/signup" className="text-cyan-400 font-semibold">
+          <Link to="/signup" className="text-cyan-400">
             Sign up
           </Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 }
