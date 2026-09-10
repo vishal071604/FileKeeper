@@ -9,12 +9,27 @@ import noteRoutes from "./routes/note.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const defaultFrontendOrigins = [
+  "http://localhost:5173",
+  "https://file-keeper-iota.vercel.app",
+];
+const frontendOrigins = (process.env.FRONTEND_URL || defaultFrontendOrigins.join(","))
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 connectDB();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin(origin, callback) {
+      // Requests without an Origin header cover health checks and server-to-server calls.
+      if (!origin || frontendOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Origin not allowed by CORS"));
+    },
     credentials: true,
   })
 );
