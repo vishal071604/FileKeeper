@@ -70,3 +70,49 @@ Notes-Keeper/
 │   │   └── note.routes.js
 │   ├── server.js
 │   └── .env
+```
+
+## Run locally
+
+1. Create `Backend/.env`:
+
+   ```env
+   MONGO_URI=your-mongodb-connection-string
+   JWT_SECRET=a-long-random-secret
+   FRONTEND_URL=http://localhost:5173
+   ```
+
+2. Start the backend:
+
+   ```bash
+   cd Backend
+   npm install
+   npm run dev
+   ```
+
+3. Start the frontend in another terminal:
+
+   ```bash
+   cd Frontend
+   npm install
+   npm run dev
+   ```
+
+## Deployment
+
+The frontend is deployed at [file-keeper-iota.vercel.app](https://file-keeper-iota.vercel.app/).
+
+For a fully live app, deploy the backend separately and configure these variables:
+
+```env
+# Frontend (Vercel)
+VITE_API_URL=https://your-backend-domain/api
+
+# Backend host
+NODE_ENV=production
+FRONTEND_URL=https://file-keeper-iota.vercel.app
+MONGO_URI=your-mongodb-connection-string
+JWT_SECRET=a-long-random-secret
+```
+
+After changing `VITE_API_URL`, redeploy the frontend. The backend must allow the frontend URL through CORS.
