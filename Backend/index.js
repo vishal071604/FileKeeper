@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const defaultFrontendOrigins = [
   "http://localhost:5173",
-  "https://file-keeper-virid.vercel.app",
+  "https://file-keeper-brown.vercel.app",
 ];
 const frontendOrigins = (process.env.FRONTEND_URL || defaultFrontendOrigins.join(","))
   .split(",")
