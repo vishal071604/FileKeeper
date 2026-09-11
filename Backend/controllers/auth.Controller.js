@@ -2,36 +2,33 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 
-const cookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-};
-
+// SIGNUP
 export const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
-        message: "All fields are required",
+        message: "All fields are required"
       });
     }
+
     const existingUser = await User.findOne({ email });
-    
+
     if (existingUser) {
       return res.status(400).json({
-        message: "User already exists",
+        message: "User already exists"
       });
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create user
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password: hashedPassword
     });
 
     res.status(201).json({
@@ -39,83 +36,88 @@ export const signup = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
-      },
+        email: user.email
+      }
     });
+
   } catch (error) {
     res.status(500).json({
-      message: "Server error",
-      error: error.message,
+      message: "Server error"
     });
   }
 };
 
+
+// LOGIN
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
-        message: "All fields are required",
+        message: "Email and password are required"
       });
     }
 
+    // Find user
     const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
-        message: "Invalid credentials",
+        message: "Invalid email or password"
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Check password
+    const passwordCorrect = await bcrypt.compare(
+      password,
+      user.password
+    );
 
-    if (!isMatch) {
+    if (!passwordCorrect) {
       return res.status(400).json({
-        message: "Invalid credentials",
+        message: "Invalid email or password"
       });
     }
 
+    // Create token
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    res.cookie("token", token, cookieOptions);
+    // Store token in cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     res.status(200).json({
       message: "Login successful",
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
-      },
+        email: user.email
+      }
     });
+
   } catch (error) {
     res.status(500).json({
-      message: "Server error",
-      error: error.message,
+      message: "Server error"
     });
   }
 };
 
+
+// LOGOUT
 export const logout = (req, res) => {
-// Clear/remove the cookie named "token" from the browser
-res.clearCookie("token", {
-  // Cookie cannot be accessed using frontend JavaScript
-  // Example: document.cookie cannot read this cookie
-  httpOnly: true,
-  // false means cookie works on HTTP also
-  // Use false for localhost development
-  // Use true in production with HTTPS
-  secure: false,
-  // Helps protect from CSRF attacks
-  // Cookie is sent only in safe/normal same-site requests
-  sameSite: "lax",
-});
+
+  // Remove token cookie
+  res.clearCookie("token");
 
   res.status(200).json({
-    message: "Logout successful",
+    message: "Logout successful"
   });
 };
+

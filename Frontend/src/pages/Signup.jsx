@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../api/axios";
 
-export default function Signup() {
+function Signup() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
@@ -14,29 +14,39 @@ export default function Signup() {
     e.preventDefault();
 
     try {
-      const res = await API.post("/auth/signup", { name, email, password });
+      const response = await API.post("/auth/signup", {
+        name,
+        email,
+        password
+      });
 
-      toast.success(res.data.message || "Signup successful");
+      toast.success(response.data.message);
       navigate("/");
+
     } catch (error) {
-      toast.error(error.response?.data?.message || "Signup failed");
+      toast.error(
+        error.response?.data?.message || "Signup failed"
+      );
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="w-full max-w-md bg-slate-900 p-8 rounded-2xl shadow-lg">
+
+      <div className="w-full max-w-md bg-slate-900 p-8 rounded-2xl">
+
         <h1 className="text-3xl font-bold text-white text-center mb-6">
           Signup
         </h1>
 
         <form onSubmit={handleSignup} className="space-y-4">
+
           <input
             type="text"
             placeholder="Enter name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full p-3 rounded-lg bg-slate-800 text-white outline-none border border-slate-700"
+            className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-700"
           />
 
           <input
@@ -44,7 +54,7 @@ export default function Signup() {
             placeholder="Enter email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 rounded-lg bg-slate-800 text-white outline-none border border-slate-700"
+            className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-700"
           />
 
           <input
@@ -52,7 +62,7 @@ export default function Signup() {
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 rounded-lg bg-slate-800 text-white outline-none border border-slate-700"
+            className="w-full p-3 rounded-lg bg-slate-800 text-white border border-slate-700"
           />
 
           <button
@@ -61,15 +71,21 @@ export default function Signup() {
           >
             Sign Up
           </button>
+
         </form>
 
         <p className="text-slate-400 text-center mt-5">
-          Already have account?{" "}
+          Already have an account?{" "}
+
           <Link to="/" className="text-cyan-400">
             Login
           </Link>
         </p>
+
       </div>
+
     </div>
   );
 }
+
+export default Signup;
